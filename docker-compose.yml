@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  api:
+    container_name: login-example-api
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - ".:/app"
+    ports:
+      - "8000:8000"
+    environment:
+      DB_USER: login-user
+      DB_PASSWORD: login-pass
+      DB_NAME: login-db
+      DB_HOST: db
+      DB_PORT: 3306
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    container_name: login-example-db
+    image: mysql:8.0.33
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: login-db
+      MYSQL_USER: login-user
+      MYSQL_PASSWORD: login-pass
+    ports:
+      - "33306:3306"
+    volumes:
+      - type: volume
+        source: login-example-db
+        target: /var/lib/mysql
+      - type: bind
+        source: ./_tools/mysql/conf.d
+        target: /etc/mysql/conf.d
+      - type: bind
+        source: ./_tools/mysql/init.d
+        target: /docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  mail:
+    container_name: login-example-mail
+    image: mailhog/mailhog
+    platform: linux/x86_64
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+volumes:
+  login-example-db:
