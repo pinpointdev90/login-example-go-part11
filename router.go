@@ -4,7 +4,7 @@ import (
 	"login-example/auth"
 	"login-example/handler"
 	"login-example/mail"
-	myMiddleware "login-go/middleware"
+	myMiddleware "login-example/middleware"
 	"login-example/repository"
 	"login-example/usecase"
 
